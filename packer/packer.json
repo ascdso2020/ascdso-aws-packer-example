@@ -1,0 +1,20 @@
+{
+    "description" : "Packer Template Example",
+    "builders": [
+      {
+        "type": "amazon-ebs",
+        "source_ami": "ami-0a166fb5b1a5d9532",
+        "instance_type": "t3.micro",
+        "ssh_username": "ec2-user",
+        "ami_name": "example {{timestamp}}",
+        "region": "eu-west-1"
+      }
+    ],
+  
+    "provisioners": [
+      {
+        "type": "shell",
+        "script": "scripts/setup-instance.sh"
+      }
+    ]
+  }
