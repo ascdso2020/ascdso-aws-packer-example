@@ -3,7 +3,7 @@
     "builders": [
       {
         "type": "amazon-ebs",
-        "source_ami": "ami-0a166fb5b1a5d9532",
+        "source_ami": "ami-09693313102a30b2c",
         "instance_type": "t3.micro",
         "ssh_username": "ec2-user",
         "ami_name": "example {{timestamp}}",

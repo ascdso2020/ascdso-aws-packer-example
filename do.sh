@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PACKER_AMI_IMAGE="ami-0a166fb5b1a5d9532"
+PACKER_AMI_IMAGE="ami-09693313102a30b2c"
 PACKER_AWS_REGION="eu-west-1"
 
 PROJECT_NAME=`basename ${PWD}`
