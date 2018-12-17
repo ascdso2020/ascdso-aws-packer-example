@@ -1,26 +1,41 @@
 #!/bin/sh
 
-PACKER_AMI_IMAGE="ami-09693313102a30b2c"
-PACKER_AWS_REGION="eu-west-1"
+# Utility script
+# To avoid errors, check your changes with https://www.shellcheck.net/
 
-PROJECT_NAME=`basename ${PWD}`
-BUILDER_DOCKERFILE_PATH="${PWD}/packer"
-BUILDER_IMAGE_VERSION=`cat ${BUILDER_DOCKERFILE_PATH}/Dockerfile | grep "version" | grep -oe "[0-9]\+[.][0-9]\+[.][0-9]\+"`
-BUILDER_IMAGE_ID="$PROJECT_NAME-builder:$BUILDER_IMAGE_VERSION"
+set -eu
+
+PROJECT_DIR="${PWD}"
+PROJECT_NAME="$(basename "${PROJECT_DIR}")"
+
+AWS_CREDENTIALS_DIR="${HOME}/.aws"
+
+BUILDER_DOCKERFILE_PATH="${PROJECT_DIR}/packer"
+BUILDER_IMAGE_VERSION=$(grep "version" <  "${BUILDER_DOCKERFILE_PATH}/Dockerfile" | grep -oe "[0-9]\+[.][0-9]\+[.][0-9]\+")
+BUILDER_IMAGE_ID="${PROJECT_NAME}-builder:${BUILDER_IMAGE_VERSION}"
+
+PACKER_DIR="${PROJECT_DIR}/packer"
+PACKER_FILE="packer.json"
+PACKER_WRAPPER="/var/local/packer/scripts/run-packer.sh"
 
 case $1 in
   build)
-    docker run --rm -it --mount "type=bind,source=${PWD},destination=/var/local" --mount "type=bind,source=${HOME}/.aws,destination=/root/.aws,readonly" $BUILDER_IMAGE_ID /var/local/packer/scripts/run-packer.sh build ./packer.json
+    PACKER_CMD="build"
+    docker run --rm -it --mount "type=bind,source=${PROJECT_DIR},destination=/var/local" --mount "type=bind,source=${AWS_CREDENTIALS_DIR},destination=/root/.aws,readonly" "${BUILDER_IMAGE_ID}" "${PACKER_WRAPPER}" "${PACKER_CMD}" "./${PACKER_FILE}"
     ;;
   info)
-    echo "Project name: ${PROJECT_NAME}"
-    echo "Docker builder image ID: ${BUILDER_IMAGE_ID}"
+    echo "Project: Repository name: ${PROJECT_NAME}"
+    echo "AWS: Credentials directory: ${AWS_CREDENTIALS_DIR}"
+    echo "Docker builder: Current image ID: ${BUILDER_IMAGE_ID}"
+    echo "Docker builder: Current image version: ${BUILDER_IMAGE_VERSION}"
+    echo "Packer: Build directory: ${PACKER_DIR}"
+    echo "Packer: Config file: ${PACKER_FILE}"
     ;;
   setup)
-    docker build ${BUILDER_DOCKERFILE_PATH}/ -t $BUILDER_IMAGE_ID
+    docker build "${BUILDER_DOCKERFILE_PATH}/" -t "${BUILDER_IMAGE_ID}"
     ;;
   shell)
-    docker run --rm -it --mount "type=bind,source=${PWD},destination=/var/local" --mount "type=bind,source=${HOME}/.aws,destination=/root/.aws,readonly" $BUILDER_IMAGE_ID /bin/sh
+    docker run --rm -it --mount "type=bind,source=${PROJECT_DIR},destination=/var/local" --mount "type=bind,source=${AWS_CREDENTIALS_DIR},destination=/root/.aws,readonly" "${BUILDER_IMAGE_ID}" /bin/sh
     ;;
   *)
     echo "$1 is not a valid command"
