@@ -29,7 +29,7 @@ case $1 in
     echo "Docker builder | Current image ID      | ${BUILDER_IMAGE_ID}"
     echo "Docker builder | Current image version | ${BUILDER_IMAGE_VERSION}"
     echo "Packer         | Build directory       | ${PACKER_DIR}"
-    echo "Packer         | Config file           | ${PACKER_FILE}"
+    echo "Packer         | Template file         | ${PACKER_FILE}"
     echo "AWS            | Credentials directory | ${AWS_CREDENTIALS_DIR}"
     ;;
   setup)
