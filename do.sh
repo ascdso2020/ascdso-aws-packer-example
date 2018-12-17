@@ -24,12 +24,13 @@ case $1 in
     docker run --rm -it --mount "type=bind,source=${PROJECT_DIR},destination=/var/local" --mount "type=bind,source=${AWS_CREDENTIALS_DIR},destination=/root/.aws,readonly" "${BUILDER_IMAGE_ID}" "${PACKER_WRAPPER}" "${PACKER_CMD}" "./${PACKER_FILE}"
     ;;
   info)
-    echo "Project: Repository name: ${PROJECT_NAME}"
-    echo "AWS: Credentials directory: ${AWS_CREDENTIALS_DIR}"
-    echo "Docker builder: Current image ID: ${BUILDER_IMAGE_ID}"
-    echo "Docker builder: Current image version: ${BUILDER_IMAGE_VERSION}"
-    echo "Packer: Build directory: ${PACKER_DIR}"
-    echo "Packer: Config file: ${PACKER_FILE}"
+    echo "Project        | Repository name       | ${PROJECT_NAME}"
+    echo "Project        | Host directory        | ${PROJECT_DIR}"
+    echo "Docker builder | Current image ID      | ${BUILDER_IMAGE_ID}"
+    echo "Docker builder | Current image version | ${BUILDER_IMAGE_VERSION}"
+    echo "Packer         | Build directory       | ${PACKER_DIR}"
+    echo "Packer         | Config file           | ${PACKER_FILE}"
+    echo "AWS            | Credentials directory | ${AWS_CREDENTIALS_DIR}"
     ;;
   setup)
     docker build "${BUILDER_DOCKERFILE_PATH}/" -t "${BUILDER_IMAGE_ID}"
