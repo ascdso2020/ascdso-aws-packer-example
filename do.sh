@@ -5,9 +5,6 @@
 
 set -eu
 
-if [ "$OSTYPE" == "msys" ]; then
-	export WINPTY=winpty
-fi
 export PROJECT_DIR="${PWD}"
 export PROJECT_NAME="$(basename "${PROJECT_DIR}")"
 
@@ -19,7 +16,14 @@ export BUILDER_IMAGE_ID="${PROJECT_NAME}-builder:${BUILDER_IMAGE_VERSION}"
 
 export PACKER_DIR="${PROJECT_DIR}/packer"
 export PACKER_FILE="packer.json"
-export PACKER_WRAPPER="/var/local/packer/scripts/run-packer.sh"
+if [ "$OSTYPE" == "msys" ]; then
+	export WINPTY=winpty
+	export MSYS_NO_PATHCONV=1
+	export MSYS2_ARG_CONV_EXCL="*"
+	export PACKER_WRAPPER="//var/local/packer/scripts/run-packer.sh"
+else
+	export PACKER_WRAPPER="/var/local/packer/scripts/run-packer.sh"
+fi
 
 case $1 in
   build)
