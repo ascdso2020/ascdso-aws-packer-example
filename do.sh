@@ -3,25 +3,28 @@
 # Utility script
 # To avoid errors, check your changes with https://www.shellcheck.net/
 
-set -eu
+#set -eu
 
-PROJECT_DIR="${PWD}"
-PROJECT_NAME="$(basename "${PROJECT_DIR}")"
+if [ "$OSTYPE" == "msys" ]; then
+	export WINPTY=winpty
+fi
+export PROJECT_DIR="${PWD}"
+export PROJECT_NAME="$(basename "${PROJECT_DIR}")"
 
-AWS_CREDENTIALS_DIR="${HOME}/.aws"
+export AWS_CREDENTIALS_DIR="${HOME}/.aws"
 
-BUILDER_DOCKERFILE_PATH="${PROJECT_DIR}/packer"
-BUILDER_IMAGE_VERSION=$(grep "version" <  "${BUILDER_DOCKERFILE_PATH}/Dockerfile" | grep -oe "[0-9]\+[.][0-9]\+[.][0-9]\+")
-BUILDER_IMAGE_ID="${PROJECT_NAME}-builder:${BUILDER_IMAGE_VERSION}"
+export BUILDER_DOCKERFILE_PATH="${PROJECT_DIR}/packer"
+export BUILDER_IMAGE_VERSION=$(grep "version" <  "${BUILDER_DOCKERFILE_PATH}/Dockerfile" | grep -oe "[0-9]\+[.][0-9]\+[.][0-9]\+")
+export BUILDER_IMAGE_ID="${PROJECT_NAME}-builder:${BUILDER_IMAGE_VERSION}"
 
-PACKER_DIR="${PROJECT_DIR}/packer"
-PACKER_FILE="packer.json"
-PACKER_WRAPPER="/var/local/packer/scripts/run-packer.sh"
+export PACKER_DIR="${PROJECT_DIR}/packer"
+export PACKER_FILE="packer.json"
+export PACKER_WRAPPER="/var/local/packer/scripts/run-packer.sh"
 
 case $1 in
   build)
-    PACKER_CMD="build"
-    docker run --rm -it --mount "type=bind,source=${PROJECT_DIR},destination=/var/local" --mount "type=bind,source=${AWS_CREDENTIALS_DIR},destination=/root/.aws,readonly" "${BUILDER_IMAGE_ID}" "${PACKER_WRAPPER}" "${PACKER_CMD}" "./${PACKER_FILE}"
+    export PACKER_CMD="build"
+    $WINPTY docker run --rm -it --mount "type=bind,source=${PROJECT_DIR},destination=/var/local" --mount "type=bind,source=${AWS_CREDENTIALS_DIR},destination=/root/.aws,readonly" "${BUILDER_IMAGE_ID}" "${PACKER_WRAPPER}" "${PACKER_CMD}" "./${PACKER_FILE}"
     ;;
   info)
     echo "Project        | Repository name       | ${PROJECT_NAME}"
@@ -33,10 +36,10 @@ case $1 in
     echo "AWS            | Credentials directory | ${AWS_CREDENTIALS_DIR}"
     ;;
   setup)
-    docker build "${BUILDER_DOCKERFILE_PATH}/" -t "${BUILDER_IMAGE_ID}"
+    $WINPTY docker build "${BUILDER_DOCKERFILE_PATH}/" -t "${BUILDER_IMAGE_ID}"
     ;;
   shell)
-    docker run --rm -it --mount "type=bind,source=${PROJECT_DIR},destination=/var/local" --mount "type=bind,source=${AWS_CREDENTIALS_DIR},destination=/root/.aws,readonly" "${BUILDER_IMAGE_ID}" /bin/sh
+    $WINPTY docker run --rm -it --mount "type=bind,source=${PROJECT_DIR},destination=/var/local" --mount "type=bind,source=${AWS_CREDENTIALS_DIR},destination=/root/.aws,readonly" "${BUILDER_IMAGE_ID}" /bin/sh
     ;;
   *)
     echo "$1 is not a valid command"
