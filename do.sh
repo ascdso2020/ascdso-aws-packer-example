@@ -3,7 +3,7 @@
 # Utility script
 # To avoid errors, check your changes with https://www.shellcheck.net/
 
-#set -eu
+set -eu
 
 if [ "$OSTYPE" == "msys" ]; then
 	export WINPTY=winpty
